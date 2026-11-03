@@ -72,28 +72,17 @@ for screen in bpy.data.screens:
                         region.active_panel_category = 'Airmetric'
                     except AttributeError:
                         pass
-            print('UI_REGION_PROPERTIES', [p.identifier for r in area.regions if r.type == 'UI' for p in r.bl_rna.properties])
 bpy.context.scene.airmetric_agr.status = 'Пример: демонстрационное здание'
 bpy.context.preferences.view.show_splash = False
 bpy.context.preferences.view.show_tooltips = False
+for owner in (bpy.context.preferences.view, bpy.context.preferences.system):
+    prop = owner.bl_rna.properties.get('ui_scale')
+    if prop is not None and not prop.is_readonly:
+        owner.ui_scale = 1.3
 
 
 def capture():
-    path = ROOT / 'docs' / 'images' / 'viewer.png'
-    bpy.ops.screen.screenshot(filepath=str(path))
-    print('AGR_VIEWER_SCREENSHOT', str(path), flush=True)
-    return None
-
-
-def solid():
-    for area in bpy.context.window.screen.areas:
-        if area.type == 'VIEW_3D':
-            area.spaces.active.shading.type = 'SOLID'
-    return None
-
-
-def capture_solid():
-    bpy.ops.screen.screenshot(filepath=str(ROOT / 'docs' / 'images' / 'solid.png'))
+    bpy.ops.screen.screenshot(filepath=str(ROOT / 'docs' / 'images' / 'viewer.png'))
     return None
 
 
@@ -101,17 +90,23 @@ def finish():
     bpy.ops.wm.quit_blender()
     return None
 
+
 def activate():
+    area = next(a for a in bpy.context.window.screen.areas if a.type == 'VIEW_3D')
+    region = next(r for r in area.regions if r.type == 'WINDOW')
+    with bpy.context.temp_override(area=area, region=region):
+        bpy.ops.screen.screen_full_area(use_hide_panels=False)
     for area in bpy.context.window.screen.areas:
         if area.type == 'VIEW_3D':
+            area.spaces.active.show_region_ui = True
+            area.spaces.active.show_region_toolbar = False
             for region in area.regions:
                 if region.type == 'UI':
                     region.active_panel_category = 'Airmetric'
             area.tag_redraw()
     return None
 
+
 bpy.app.timers.register(activate, first_interval=3)
 bpy.app.timers.register(capture, first_interval=12)
-bpy.app.timers.register(solid, first_interval=14)
-bpy.app.timers.register(capture_solid, first_interval=17)
-bpy.app.timers.register(finish, first_interval=19)
+bpy.app.timers.register(finish, first_interval=15)
