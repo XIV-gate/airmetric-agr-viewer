@@ -115,8 +115,8 @@ def recover_materials(path, new_materials, owned_images):
         bsdf = shader(material)
         if not bsdf.inputs['Alpha'].is_linked:
             bsdf.inputs['Alpha'].default_value = alpha
-        for socket, candidates in _MAPS.items():
-            data = next((maps[p] for p in candidates if p in maps), None)
+        for socket, aliases in _MAPS.items():
+            data = next((maps[p] for p in aliases if p in maps), None)
             if data is None:
                 continue
             target = bsdf.inputs[socket]

@@ -28,6 +28,8 @@ def members(archive):
             raise ValueError('Символические ссылки в ZIP не поддерживаются')
         if item.is_dir():
             continue
+        if '__MACOSX' in path.parts or path.name.startswith('._'):
+            continue  # Archive metadata is not a second model or texture.
         if (path.name.endswith((' ', '.')) or re.match(r'(?i)^(con|prn|aux|nul|com\d|lpt\d)(\.|$)', path.name)):
             raise ValueError('Недопустимое имя файла в ZIP: ' + name)
         if path.suffix.lower() not in FORMATS:

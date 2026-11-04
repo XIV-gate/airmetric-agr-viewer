@@ -2,10 +2,10 @@
 import json
 from pathlib import Path
 import bpy
-from . import agr, archive, materials, fbx
+from . import agr, archive, materials, fbx, scene as scene_data
 
 _DATA = ('objects', 'collections', 'meshes', 'materials', 'images', 'actions',
-         'armatures', 'cameras', 'lights', 'curves')
+         'armatures', 'cameras', 'lights', 'curves', 'node_groups', 'textures', 'worlds')
 
 
 def snapshot():
@@ -56,6 +56,7 @@ def import_archives(paths, *, scratch_directory=None, progress=None):
                     collection = bpy.data.collections.new(path.stem)
                     collection['airmetric_kind'] = kind
                     collection['airmetric_archive'] = source.name
+                    collection['airmetric_source'] = scene_data.source_key(source)
                     bpy.context.scene.collection.children.link(collection)
                     bpy.context.view_layer.update()
                     layer = bpy.context.view_layer.layer_collection.children[collection.name]
